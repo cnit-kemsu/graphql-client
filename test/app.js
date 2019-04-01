@@ -49,7 +49,7 @@ function Users() {
     onComplete: () => { console.log('mutate success'); refetch(); },
     onError: console.error
   });
-  const deleteUser = useMutation(deleteUserMutation, { email: 'standard@email.com' }, {
+  const deleteUser = useMutation(deleteUserMutation, {}, {
     onComplete: () => { console.log('mutate success'); refetch(); },
     onError: console.error
   });
