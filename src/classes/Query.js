@@ -11,6 +11,9 @@ export class Query {
     this.onError = onError;
     this.onComplete = onComplete;
     this.skip = skip;
+
+    this.refetch = this.refetch.bind(this);
+    this.handleSubscriptions = this.handleSubscriptions.bind(this);
   }
 
   async fetch() {
@@ -27,26 +30,36 @@ export class Query {
       this.error = error;
       if (this.onError) this.onError(error);
     }
-  }
-
-  async refetch(variables) {
-    
-    if (this.loading) {
-      if (this.skip) {
-        this.loading = false;
-        return;
-      }
-    } else {
-      this.loading = true;
-      this.forceUpdate();
-    }
-
-    if (variables !== undefined) this.variables = variables;
-
-    await this._fetch();
 
     this.loading = false;
     this.forceUpdate();
+  }
+
+  handleUpdate(variables) {
+
+    if (this.skip) {
+      this.skip = false;
+      return;
+    }
+    this.loading = true;
+
+    this.variables = variables;
+    this.fetch();
+  }
+
+  refetch(variables) {
+
+    this.loading = true;
+    this.forceUpdate();
+
+    if (variables !== undefined) this.variables = variables;
+    this.fetch();
+  }
+
+  handleSubscriptions() {
+    return () => {
+      this.forceUpdate = () => undefined;
+    };
   }
 
 }

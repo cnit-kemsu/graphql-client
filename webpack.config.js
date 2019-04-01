@@ -1,9 +1,9 @@
-const fs = require('fs');
-const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const { DuplicatesPlugin } = require('inspectpack/plugin');
+import fs from 'fs';
+import path from 'path';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import { DuplicatesPlugin } from 'inspectpack/plugin';
 
-module.exports = {
+export default {
   devtool: 'inline-source-map',
   target: 'web',
   entry: './test/app.js',
@@ -51,7 +51,12 @@ module.exports = {
     }
   },
 
-  devServer: {
-    port: 3000
-  }
+  mode: 'development'
+
+  // devServer: {
+  //   port: 3000,
+  //   proxy: {
+  //     '/api': 'http://localhost:8080/graphql'
+  //   }
+  // }
 };

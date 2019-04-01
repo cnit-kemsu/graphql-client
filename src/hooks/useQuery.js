@@ -1,25 +1,28 @@
-import { useContext, useMemo } from 'react';
+import { useContext, useMemo, useEffect } from 'react';
 import { useForceUpdate } from '@implicit/force-update';
-import { GraphqlContext } from '../classes/GraphqlProvider';
+import { GraphqlContext } from '../comps/GraphqlProvider';
 import { Query } from '../classes/Query';
 
-export function useQuery(query, variables, { onError, onComplete, skip } = {}) {
+function varsToValues(variables) {
+  return Object.keys(variables).map(
+    key => variables[key]
+  );
+}
+
+export function useQuery(graphql, variables = {}, { onError, onComplete, skip } = {}) {
 
   const client = useContext(GraphqlContext);
   const forceUpdate = useForceUpdate();
-  const _query = useMemo(() => new Query(client, forceUpdate, query, onError, onComplete, skip), []);
+  const query = useMemo(() => new Query(client, forceUpdate, graphql, onError, onComplete, skip), []);
 
-  useMemo(
-    () => _query.refetch(variables),
-    Object.keys(variables).map(
-      key => variables[key]
-    )
-  );
+  useMemo(() => query.handleUpdate(variables), varsToValues(variables));
+
+  useEffect(query.handleSubscriptions, []);
 
   return [
-    _query.data,
-    _query.refetch,
-    _query.loading,
-    _query.error
+    query.data,
+    query.refetch,
+    query.loading,
+    query.error
   ];
 }

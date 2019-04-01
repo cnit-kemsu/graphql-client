@@ -7,7 +7,6 @@ const {
   GraphQLObjectType,
   GraphQLString,
 } = require('graphql');
-const db = require('./db');
 
 const UserType = new GraphQLObjectType({
   name: 'User',
@@ -39,8 +38,8 @@ const users = {
   args: {
     limit: { type: GraphQLInt }
   },
-  resolve: async (obj, { limit }) => {
-    const result = await db.all(`SELECT id, username, email FROM users LIMIT $limit`, { $limit: limit });
+  resolve: async (obj, { limit }, { db }) => {
+    const result = await db.all(`SELECT id, username, email FROM users LIMIT ?`, limit || -1);
     return result;
   }
 };
@@ -50,8 +49,8 @@ const createUser = {
   args: {
     input: { type: new GraphQLNonNull(UserCreateInputType) }
   },
-  async resolve(obj, { input: { username, email } }) {
-    const id = await db.run(`INSERT INTO users (username, email) VALUES(?,?)`, [username, email]);
+  async resolve(obj, { input: { username, email } }, { db }) {
+    const { lastID: id } = await db.run(`INSERT INTO users (username, email) VALUES(?,?)`, username, email);
     return {
       id,
       username,
@@ -66,9 +65,9 @@ const updateUser = {
     id: { type: new GraphQLNonNull(GraphQLInt) },
     input: { type: new GraphQLNonNull(UserUpdateInputType) }
   },
-  async resolve(obj, { id, input: { username, email } }) {
-    await db.run(`UPDATE users SET username = ?, email = ? WHERE id = ?`, [username, email, id]);
-    const result = await db.all(`SELECT id, username, email FROM users WHERE id = $id`, { $id: id });
+  async resolve(obj, { id, input: { username, email } }, { db }) {
+    await db.run(`UPDATE users SET username = ?, email = ? WHERE id = ?`, username, email, id);
+    const result = await db.all(`SELECT id, username, email FROM users WHERE id = $id`, id);
     return result[0];
   }
 };
@@ -76,11 +75,11 @@ const updateUser = {
 const deleteUser = {
   type: UserType,
   args: {
-    id: { type: new GraphQLNonNull(GraphQLInt) },
+    id: { type: new GraphQLNonNull(GraphQLInt) }
   },
-  async resolve(obj, { id }) {
-    const result = await db.all(`SELECT id, username, email FROM users WHERE id = $id`, { $id: id });
-    await db.run(`DELETE FROM users WHERE id = ?`, [id]);
+  async resolve(obj, { id }, { db }) {
+    const result = await db.all(`SELECT id, username, email FROM users WHERE id = $id`, id);
+    await db.run(`DELETE FROM users WHERE id = ?`, id);
     return result[0];
   }
 };
