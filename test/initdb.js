@@ -1,4 +1,4 @@
-const sqlite = require('sqlite');
+import sqlite from 'sqlite';
 
 async function initdb() {
   const db = await sqlite.open('./test/localdb');

@@ -4,7 +4,7 @@ export class Query {
   loading = true;
   error = undefined;
 
-  constructor(client, forceUpdate, query, variables, onError, onComplete, skip = false) {
+  constructor(client, forceUpdate, query, onError, onComplete, skip = false) {
     this.client = client;
     this.forceUpdate = forceUpdate;
     this.query = query;
@@ -24,11 +24,11 @@ export class Query {
         variables: this.variables
       });
       this.error = undefined;
-      if (this.onComplete) this.onComplete(this.data);
+      this.onComplete?.(this.data);
 
     } catch (error) {
       this.error = error;
-      if (this.onError) this.onError(error);
+      this.onError?.(error);
     }
 
     this.loading = false;

@@ -14,29 +14,6 @@
         ]
     },
     {
-      "type": "chrome",
-      "request": "launch",
-      "name": "Debug in Chrome (GraphQL)",
-      "url": "http://localhost:8080/graphql",
-      "webRoot": "${workspaceRoot}",
-      "sourceMaps": true,
-      "userDataDir": "${workspaceRoot}/../../_chrome",
-      "runtimeArgs": [
-        "--profile-directory=debug-profile"
-      ]
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Debug Server",
-      "program": "${workspaceRoot}/test/server.js",
-      "cwd": "${workspaceRoot}",
-      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/nodemon",
-      "restart": true,
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen"
-    },
-    {
       "type": "node",
       "request": "launch",
       "name": "Debug current file",

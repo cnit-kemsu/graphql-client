@@ -1,9 +1,26 @@
-const express = require('express');
-const graphqlHTTP = require('express-graphql');
-const schema = require('./graphql_schema');
-const sqlite = require('sqlite');
+import express from 'express';
+import graphqlHTTP from 'express-graphql';
+import sqlite from 'sqlite';
+import schema from './schema';
+
+import webpack from 'webpack';
+import webpackDevMiddleware from 'webpack-dev-middleware';
+import config from '../webpack.config';
+import webpackHotMiddleware from 'webpack-hot-middleware';
 
 const app = express();
+
+const compiler = webpack(config);
+webpackDevMiddleware(compiler, {
+  publicPath: config.output.publicPath,
+  // watchOptions: {
+  //   aggregateTimeout: 300,
+  //   poll: true
+  // }
+}) |> app.use;
+webpackHotMiddleware(compiler, {
+  //heartbeat: 1000
+}) |> app.use;
 
 app.use('/graphql', graphqlHTTP( 
   async () => {
@@ -21,4 +38,4 @@ app.use('/graphql', graphqlHTTP(
   }
 ));
 
-app.listen(8080);
+app.listen(3000);

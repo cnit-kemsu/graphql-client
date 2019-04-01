@@ -1,6 +1,7 @@
 class GraphqlError extends Error {
   constructor(errors) {
     super(errors?.[0]?.message);
+    this.name = 'GraphqlError';
     this.errors = errors;
   }
 }
@@ -27,7 +28,7 @@ export class GraphqlClient {
       });
   
       const result = await responce.json();
-      if (responce.status !== 200) throw new GraphqlError(result.errors);
+      if (responce.status !== 200 || result.errors !== undefined) throw new GraphqlError(result.errors);
       return result.data;
 
     } catch (error) {

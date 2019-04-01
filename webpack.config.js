@@ -1,12 +1,20 @@
 import fs from 'fs';
 import path from 'path';
+import webpack from 'webpack';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import { DuplicatesPlugin } from 'inspectpack/plugin';
 
 export default {
   devtool: 'inline-source-map',
+  mode: 'development',
+  cache: true,
+
   target: 'web',
-  entry: './test/app.js',
+
+  entry: [
+    'webpack-hot-middleware/client?path=http://localhost:3000/__webpack_hmr&reload=true',
+    './test/app.js'
+  ],
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].js',
@@ -18,24 +26,24 @@ export default {
       {
         test: /\.js$/,
         include: [
-          path.resolve(__dirname, 'test'),
-          path.resolve(__dirname, 'src'),
-          path.resolve(__dirname, 'node_modules/@implicit')
-        ],
+          'src',
+          'node_modules/@implicit',
+          'test'
+        ].map(_ => path.resolve(__dirname, _)),
         loader: 'babel-loader',
-        options: JSON.parse(fs.readFileSync('.babelrc'))
+        options: fs.readFileSync('.babelrc') |> JSON.parse
       }
     ]
   },
 
   plugins: [
+    new webpack.HotModuleReplacementPlugin(),
     new HtmlWebpackPlugin({
       title: 'graphql-client',
       template: './test/index.html'
     }),
-    new DuplicatesPlugin({})
+    new DuplicatesPlugin({}),
   ],
-  cache: true,
 
   optimization: {
     namedChunks: true,
@@ -49,14 +57,5 @@ export default {
         }
       }
     }
-  },
-
-  mode: 'development'
-
-  // devServer: {
-  //   port: 3000,
-  //   proxy: {
-  //     '/api': 'http://localhost:8080/graphql'
-  //   }
-  // }
+  }
 };

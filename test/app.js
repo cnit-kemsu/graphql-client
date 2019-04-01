@@ -3,8 +3,9 @@ import ReactDOM from 'react-dom';
 import { GraphqlClient } from '../src/classes/GraphqlClient';
 import { GraphqlProvider } from '../src/comps/GraphqlProvider';
 import { useQuery } from '../src/hooks/useQuery';
+import { useMutation } from '../src/hooks/useMutation';
 
-const client = new GraphqlClient('/api');
+const client = new GraphqlClient('/graphql');
 
 const usersQuery = `
   query users($limit: Int!) {
@@ -16,11 +17,42 @@ const usersQuery = `
   }
 `;
 
+const createUserMutation = `
+  mutation createUser($username: String!, $email: String) {
+    createUser(username: $username, email: $email) {
+      id
+      username
+      email
+    }
+  }
+`;
+
+const deleteUserMutation = `
+  mutation deleteUser($id: Int!) {
+    deleteUser(id: $id) {
+      id
+      username
+      email
+    }
+  }
+`;
+
 function Users() {
 
   console.log('render Users');
   const [limit, setLimit] = useState(5);
-  const [data, refetch, loading, error] = useQuery(usersQuery, { limit });
+  const [data, refetch, loading, error] = useQuery(usersQuery, { limit }, {
+    onComplete: () => console.log('fetch success'),
+    onError: console.error
+  });
+  const createUser = useMutation(createUserMutation, { email: 'standard@email.com' }, {
+    onComplete: () => { console.log('mutate success'); refetch(); },
+    onError: console.error
+  });
+  const deleteUser = useMutation(deleteUserMutation, { email: 'standard@email.com' }, {
+    onComplete: () => { console.log('mutate success'); refetch(); },
+    onError: console.error
+  });
 
   return (<>
     <div>
@@ -33,6 +65,7 @@ function Users() {
           <div>id: {id}</div>
           <div>username: {username}</div>
           <div>email: {email}</div>
+          <div><button onClick={() => deleteUser({ id })}>Delete user</button></div>
         </div>
       )
     )}
@@ -41,6 +74,27 @@ function Users() {
       <button onClick={() => setLimit(10)}>set limit 10</button>
       <button onClick={() => setLimit('str')}>set limit 'str'</button>
     </div>
+    <div>
+      <div>Add user</div>
+      <form name="form1" onSubmit={event => {
+        event.preventDefault();
+        const values = {};
+        for(const input of document.forms.form1.elements) {
+          if (input.type !== 'submit' && input.value) values[input.name] = input.value;
+        }
+        createUser(values);
+      }}>
+        <div>
+          <input name="username" type="text"/>
+        </div>
+        <div>
+          <input name="email" type="text"/>
+        </div>
+        <div>
+          <input type="submit"/>
+        </div>
+      </form>
+    </div>
   </>);
 }
 
@@ -48,8 +102,7 @@ function App() {
 
   return (
     <GraphqlProvider client={client}>
-      {/* <Users /> */}
-      <div>123</div>
+      <Users />
     </GraphqlProvider>
   );
 }

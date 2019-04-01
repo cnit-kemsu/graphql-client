@@ -49,9 +49,11 @@
     "webpack": "^4.29.6",
     "webpack-cli": "^3.2.3",
     "webpack-dev-middleware": "^3.6.1",
-    "webpack-dev-server": "^3.2.1"
+    "webpack-dev-server": "^3.2.1",
+    "webpack-hot-middleware": "^2.24.3"
   },
   "scripts": {
-    "start": "node_modules/.bin/nodemon --watch webpack.config.js --watch test/dev-server.js --exec node -r @babel/register test/dev-server.js"
+    "start": "node_modules/.bin/nodemon --watch webpack.config.js --watch test/dev-server.js --watch test/schema.js --exec node -r @babel/register test/server.js",
+    "initdb": "node -r @babel/register test/initdb.js"
   }
 }
