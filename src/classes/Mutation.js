@@ -1,10 +1,13 @@
+import { UIBlocker } from '../classes/UIBlocker';
+
 export class Mutation {
 
-  constructor(client, mutation, onError, onComplete) {
+  constructor(client, mutation, onError, onComplete, blockUI) {
     this.client = client;
     this.mutation = mutation;
     this.onError = onError;
     this.onComplete = onComplete;
+    this.blockUI = blockUI;
 
     this.mutate = this.mutate.bind(this);
   }
@@ -12,6 +15,7 @@ export class Mutation {
   async mutate(variables) {
     try {
 
+      if (this.blockUI) UIBlocker.disable();
       const data = await this.client.fetch({
         query: this.mutation,
         variables: {
@@ -19,9 +23,11 @@ export class Mutation {
           ...variables
         }
       });
+      if (this.blockUI) UIBlocker.enable();
       this.onComplete?.(data);
 
     } catch (error) {
+      if (this.blockUI) UIBlocker.enable();
       this.onError?.(error);
       return error;
     }
