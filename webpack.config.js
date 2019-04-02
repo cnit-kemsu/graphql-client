@@ -27,7 +27,7 @@ export default {
         test: /\.js$/,
         include: [
           'src',
-          'node_modules/@implicit',
+          'node_modules/@kemsu',
           'test'
         ].map(_ => path.resolve(__dirname, _)),
         loader: 'babel-loader',

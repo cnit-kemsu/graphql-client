@@ -1,5 +1,5 @@
 import { useContext, useMemo, useEffect } from 'react';
-import { useForceUpdate } from '@implicit/force-update';
+import { useForceUpdate } from '@kemsu/force-update';
 import { GraphqlContext } from '../comps/GraphqlProvider';
 import { Query } from '../classes/Query';
 
