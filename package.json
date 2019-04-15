@@ -42,6 +42,7 @@
     "graphql": "^14.2.0",
     "html-webpack-plugin": "^3.2.0",
     "inspectpack": "^4.2.1",
+    "multer": "^1.4.1",
     "nodemon": "^1.18.10",
     "react": "^16.8.5",
     "react-dom": "^16.8.5",
@@ -53,7 +54,7 @@
     "webpack-hot-middleware": "^2.24.3"
   },
   "scripts": {
-    "start": "node_modules/.bin/nodemon --watch webpack.config.js --watch test/dev-server.js --watch test/schema.js --exec node -r @babel/register test/server.js",
+    "start": "node_modules/.bin/nodemon --watch webpack.config.js --watch test/server.js --watch test/schema.js --exec node --inspect=9229 -r @babel/register test/server.js",
     "initdb": "node -r @babel/register test/initdb.js"
   }
 }

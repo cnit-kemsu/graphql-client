@@ -16,15 +16,21 @@ export class GraphqlClient {
 
   async fetch(body) {
 
+    const formData  = new FormData();
+    formData.append('query', body.query);
+    formData.append('variables', JSON.stringify(body.variables));
+
     try {
 
       const responce = await fetch(this.url, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          //'Content-Type': 'application/json',
+          //'Content-Type': 'multipart/form-data',
           ...this.headers
         },
-        body: JSON.stringify(body)
+        body: formData,
+        //body
       });
   
       const result = await responce.json();
