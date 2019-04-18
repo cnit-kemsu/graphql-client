@@ -27,6 +27,7 @@ export class GraphqlClient {
         headers: {
           //'Content-Type': 'application/json',
           //'Content-Type': 'multipart/form-data',
+          'X-Requested-With': 'XMLHttpRequest',
           ...this.headers
         },
         body: formData,

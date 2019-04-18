@@ -33,17 +33,17 @@ app.use(
   '/graphql',
   upload.none(),
   graphqlHTTP(async () => {
-      const db = await sqlite.open('./test/localdb');
-      return {
-          schema,
-          context: {
-            db
-          },
-          extensions() {
-            if (db !== undefined) db.close();
-          },
-          graphiql: true
-      };
+    const db = await sqlite.open('./test/localdb');
+    return {
+      schema,
+      context: {
+        db
+      },
+      extensions() {
+        if (db !== undefined) db.close();
+      },
+      graphiql: true
+    };
   })
 );
 

@@ -100,6 +100,7 @@ function Users() {
 
 function App() {
 
+  console.log('render app');
   return (
     <GraphqlProvider client={client}>
       <Users />

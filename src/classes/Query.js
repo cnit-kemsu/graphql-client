@@ -19,11 +19,6 @@ export class Query {
   async fetch() {
     try {
 
-      // const formdata = new FormData();
-      // formdata.append('query', this.query);
-      // formdata.append('variables', this.variables);
-
-      //this.data = await this.client.fetch(formdata);
       this.data = await this.client.fetch({
         query: this.query,
         variables: this.variables
