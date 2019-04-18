@@ -39,7 +39,8 @@ export class GraphqlClient {
       return result.data;
 
     } catch (error) {
-      throw new GraphqlError([error]);
+      if (error.name === 'GraphqlError') throw error;
+      else throw new GraphqlError([error]);
     }
     
   }
