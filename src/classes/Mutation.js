@@ -24,7 +24,7 @@ export class Mutation {
         }
       });
       if (this.blockUI) UIBlocker.enable();
-      this.onComplete?.(data);
+      this.onComplete?.(data, variables);
 
     } catch (error) {
       if (this.blockUI) UIBlocker.enable();
