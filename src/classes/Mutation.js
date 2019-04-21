@@ -19,7 +19,7 @@ export class Mutation {
       const data = await this.client.fetch({
         query: this.mutation,
         variables: {
-          ...this.variables,
+          ...this.static,
           ...variables
         }
       });
