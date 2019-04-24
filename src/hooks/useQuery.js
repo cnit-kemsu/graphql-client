@@ -21,8 +21,8 @@ export function useQuery(graphql, variables = {}, { onError, onComplete, skip } 
 
   return [
     query.data,
-    query.refetch,
     query.loading,
+    query.refetch,
     query.error
   ];
 }
