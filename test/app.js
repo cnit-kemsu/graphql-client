@@ -7,14 +7,16 @@ import { useMutation } from '../src/hooks/useMutation';
 
 const client = new GraphqlClient('/graphql');
 
-const usersQuery = `
-  query users($limit: Int!) {
-    users(limit: $limit) {
-      id
-      username
-      email
-    }
+const USERS_QUERY = ({ limit = 'Int!' }) => `
+  users(limit: ${limit}) {
+    id
+    username
+    email
   }
+`;
+
+const USERS_COUNT_QUERY = () => `
+  usersCount
 `;
 
 const createUserMutation = `
@@ -41,10 +43,15 @@ function Users() {
 
   console.log('render Users');
   const [limit, setLimit] = useState(5);
-  const [data, refetch, loading, error] = useQuery(usersQuery, { limit }, {
+  const [data, loading, refetch, error] = useQuery(USERS_QUERY, { limit }, {
     onComplete: () => console.log('fetch success'),
     onError: console.error
   });
+  const [data1, loading1, refetch1, error1] = useQuery(USERS_COUNT_QUERY, {}, {
+    onComplete: () => console.log('fetch success'),
+    onError: console.error
+  });
+
   const createUser = useMutation(createUserMutation, { email: 'standard@email.com' }, {
     onComplete: () => { console.log('mutate success'); refetch(); },
     onError: console.error
@@ -58,6 +65,10 @@ function Users() {
     <div>
       <button onClick={() => refetch()}>refetch</button>
     </div>
+    Users count: {loading1 ? 'loading...' : (
+      error1 ? JSON.stringify(error1) :
+      data1.usersCount
+    )}
     {loading ? 'loading...' : (
       error ? JSON.stringify(error) :
       data.users?.map(

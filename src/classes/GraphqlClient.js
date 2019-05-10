@@ -9,9 +9,57 @@ class GraphqlError extends Error {
 export class GraphqlClient {
 
   headers = {};
+  _waitForQueries = 0;
+  queriesToFetch = [];
+  queries = [];
 
   constructor(url) {
     this.url = url;
+  }
+
+  get waitForQueries() {
+    return this._waitForQueries;
+  }
+  set waitForQueries(value) {
+    this._waitForQueries = value;
+    if (this._waitForQueries === 0) this.fetchQueries();
+  }
+
+  async fetchQueries() {
+    let graphql = '';
+    const vars = {};
+    const values = {};
+    for (const [index, [query, variables]] of Object.entries(this.queriesToFetch)) {
+      const _variables = Object.entries(variables).reduce(
+        (_vars, [key, value]) => {
+          const _key = key + '_' + index;
+          vars[_key] = query.args[key];
+          values[_key] = value;
+          return {
+            ..._vars,
+            [key]: '$' + _key
+          };
+        },
+        {}
+      );
+      graphql = graphql + query.query(_variables);
+    }
+    const varsStr = Object.entries(vars).map(
+      ([key, val]) => '$' + key + ': ' + val
+    ) |> # && '(' + # + ')' || '';
+    graphql = `
+      query operation1${varsStr} {
+        ${graphql}
+      }
+    `;
+    console.log(vars);
+    console.log(graphql);
+    console.log(values);
+    this.queriesToFetch = [];
+    await this.fetch({
+      query: graphql,
+      variables: values
+    });
   }
 
   async fetch(body) {
@@ -25,13 +73,10 @@ export class GraphqlClient {
       const responce = await fetch(this.url, {
         method: 'POST',
         headers: {
-          //'Content-Type': 'application/json',
-          //'Content-Type': 'multipart/form-data',
           'X-Requested-With': 'XMLHttpRequest',
           ...this.headers
         },
-        body: formData,
-        //body
+        body: formData
       });
   
       const result = await responce.json();

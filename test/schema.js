@@ -33,6 +33,14 @@ const users = {
   }
 };
 
+const usersCount = {
+  type: new GraphQLNonNull(GraphQLInt),
+  resolve: async (obj, {}, { db }) => {
+    const result = await db.all(`SELECT COUNT(*) count FROM users`);
+    return result[0].count;
+  }
+};
+
 const createUser = {
   type: UserType,
   args: {
@@ -82,7 +90,8 @@ export default new GraphQLSchema({
   query: new GraphQLObjectType({
     name: 'Query',
     fields: {
-      users
+      users,
+      usersCount
     }
   }),
 

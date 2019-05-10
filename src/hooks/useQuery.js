@@ -5,7 +5,7 @@ import { Query } from '../classes/Query';
 
 function varsToValues(variables) {
   return Object.keys(variables).map(
-    key => variables[key]
+    key => key + ' = ' + JSON.stringify(variables[key])
   );
 }
 
@@ -15,9 +15,13 @@ export function useQuery(graphql, variables = {}, { onError, onComplete, skip } 
   const forceUpdate = useForceUpdate();
   const query = useMemo(() => new Query(client, forceUpdate, graphql, onError, onComplete, skip), []);
 
-  useMemo(() => query.handleUpdate(variables), varsToValues(variables));
+  const varsValues = varsToValues(variables);
+  useMemo(() => { client.queriesToFetch.push([query, variables]); client.waitForQueries++; }, varsValues);
+  useEffect(() => { client.waitForQueries--; }, varsValues);
 
-  useEffect(query.handleSubscriptions, []);
+  //useMemo(() => query.handleUpdate(variables), varsToValues(variables));
+
+  //useEffect(query.handleSubscriptions, []);
 
   return [
     query.data,
