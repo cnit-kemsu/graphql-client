@@ -42,16 +42,12 @@ export class GraphqlClient {
         },
         {}
       );
-      graphql = graphql + query.query(_variables);
+      graphql = graphql + query.query(_variables) + '\n';
     }
     const varsStr = Object.entries(vars).map(
       ([key, val]) => '$' + key + ': ' + val
     ) |> # && '(' + # + ')' || '';
-    graphql = `
-      query operation1${varsStr} {
-        ${graphql}
-      }
-    `;
+    graphql = `query operation1${varsStr} {${graphql}}`.replace(/\n\s*\n/g, '\n');
     console.log(vars);
     console.log(graphql);
     console.log(values);

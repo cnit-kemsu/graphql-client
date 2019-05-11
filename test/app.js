@@ -15,6 +15,16 @@ const USERS_QUERY = ({ limit = 'Int!' }) => `
   }
 `;
 
+// const USERS_QUERY = [{
+//   limit: 'Int!'
+// }, ({ limit }) => `
+//   users(limit: ${limit}) {
+//     id
+//     username
+//     email
+//   }
+// `];
+
 const USERS_COUNT_QUERY = () => `
   usersCount
 `;

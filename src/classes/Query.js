@@ -1,16 +1,20 @@
-function splitArg(arg) { return arg.split('='); }
-function collectArgs(args, [name, type]) {
-  return {
-    ...args,
-    [name.trim()]: type.trim() |> #.substring(1, #.length - 1)
-  };
+const cache = [];
+function findInCache(query) {
+  const currentQuery = ([_query]) => _query === query;
+  return cache.find(currentQuery) |> # && #[1];
 }
+
+const findArgs = /^\((?<args>(\s|.)*?)\)/;
+const name_type = /\s*(?<name>\w+)\s*=\s*('|")(?<type>\S+)('|")/;
+const collectArgs = function(args, arg) {
+  const { name, type } = name_type.exec(arg).groups;
+    return { ...args, [name]: type };
+};
 function extractArgs(query) {
-  const str = query.toString();
-  if (str.indexOf(')') === 1) return {};
-  return str.substring(str.indexOf('(') + 1, str.indexOf(')'))
-  |> #.substring(#.indexOf('{') + 1, #.indexOf('}'))
-  |> #.split(',').map(splitArg).reduce(collectArgs, {});
+  return findArgs.exec(query).groups.args
+  |> # !== ''
+    && #.match(/\s*\w+\s*=\s*('|")\S+('|")/g).reduce(collectArgs, {})
+    || undefined;
 }
 
 export class Query {
@@ -23,7 +27,9 @@ export class Query {
     this.client = client;
     this.forceUpdate = forceUpdate;
     this.query = query;
-    this.args = extractArgs(query);
+    this.args = findInCache(query) ||
+      extractArgs(query)
+      |> cache.push([query, #]) && #;
     this.onError = onError;
     this.onComplete = onComplete;
     this.skip = skip;
