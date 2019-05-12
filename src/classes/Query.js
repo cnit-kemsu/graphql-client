@@ -1,21 +1,27 @@
-const cache = [];
-function findInCache(query) {
-  const currentQuery = ([_query]) => _query === query;
-  return cache.find(currentQuery) |> # && #[1];
-}
+// const cache = [];
+// function findInCache(graphql) {
+//   const currentQuery = ([c_graphql]) => c_graphql === graphql;
+//   return cache.find(currentQuery) |> # && #[1];
+// }
 
-const findArgs = /^\((?<args>(\s|.)*?)\)/;
-const name_type = /\s*(?<name>\w+)\s*=\s*('|")(?<type>\S+)('|")/;
-const collectArgs = function(args, arg) {
-  const { name, type } = name_type.exec(arg).groups;
-    return { ...args, [name]: type };
-};
-function extractArgs(query) {
-  return findArgs.exec(query).groups.args
-  |> # !== ''
-    && #.match(/\s*\w+\s*=\s*('|")\S+('|")/g).reduce(collectArgs, {})
-    || undefined;
-}
+// const findArgs = /^\((?<args>(\s|.)*?)\)/;
+// const name_type = /\s*(?<name>\w+)\s*=\s*('|")(?<type>\S+)('|")/;
+// const collectArgs = function(args, arg) {
+//   const { name, type } = name_type.exec(arg).groups;
+//     return { ...args, [name]: type };
+// };
+// function extractArgs(graphql) {
+//   return findArgs.exec(graphql).groups.args
+//   |> # !== ''
+//     && #.match(/\s*\w+\s*=\s*('|")\S+('|")/g).reduce(collectArgs, {})
+//     || undefined;
+// }
+
+// function getArgs(graphql) {
+//   return findInCache(graphql) ||
+//   extractArgs(graphql)
+//   |> cache.push([graphql, #]) && #;
+// }
 
 export class Query {
 
@@ -23,13 +29,13 @@ export class Query {
   loading = true;
   error = undefined;
 
-  constructor(client, forceUpdate, query, onError, onComplete, skip = false) {
+  constructor(client, forceUpdate, graphql, onError, onComplete, skip = false) {
     this.client = client;
     this.forceUpdate = forceUpdate;
-    this.query = query;
-    this.args = findInCache(query) ||
-      extractArgs(query)
-      |> cache.push([query, #]) && #;
+    this.graphql = graphql;
+    // this.args = findInCache(graphql) ||
+    //   extractArgs(graphql)
+    //   |> cache.push([graphql, #]) && #;
     this.onError = onError;
     this.onComplete = onComplete;
     this.skip = skip;

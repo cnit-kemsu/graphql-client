@@ -1,3 +1,5 @@
+import { collateQuery } from './collateQuery';
+
 class GraphqlError extends Error {
   constructor(errors) {
     super(errors?.[0]?.message);
@@ -26,36 +28,18 @@ export class GraphqlClient {
   }
 
   async fetchQueries() {
-    let graphql = '';
-    const vars = {};
-    const values = {};
-    for (const [index, [query, variables]] of Object.entries(this.queriesToFetch)) {
-      const _variables = Object.entries(variables).reduce(
-        (_vars, [key, value]) => {
-          const _key = key + '_' + index;
-          vars[_key] = query.args[key];
-          values[_key] = value;
-          return {
-            ..._vars,
-            [key]: '$' + _key
-          };
-        },
-        {}
-      );
-      graphql = graphql + query.query(_variables) + '\n';
-    }
-    const varsStr = Object.entries(vars).map(
-      ([key, val]) => '$' + key + ': ' + val
-    ) |> # && '(' + # + ')' || '';
-    graphql = `query operation1${varsStr} {${graphql}}`.replace(/\n\s*\n/g, '\n');
-    console.log(vars);
-    console.log(graphql);
-    console.log(values);
-    this.queriesToFetch = [];
+    const [resultQuery, values] = collateQuery(this.queriesToFetch);
+
     await this.fetch({
-      query: graphql,
+      query: resultQuery,
       variables: values
     });
+    for (const [graphql] of this.queriesToFetch) {
+      for (const query of this.queries) {
+        if (query.graphql === graphql) query.forceUpdate();
+      }
+    }
+    this.queriesToFetch = [];
   }
 
   async fetch(body) {

@@ -15,8 +15,10 @@ export function useQuery(graphql, variables = {}, { onError, onComplete, skip } 
   const forceUpdate = useForceUpdate();
   const query = useMemo(() => new Query(client, forceUpdate, graphql, onError, onComplete, skip), []);
 
+  useEffect(query.handleSubscriptions, []);
+
   const varsValues = varsToValues(variables);
-  useMemo(() => { client.queriesToFetch.push([query, variables]); client.waitForQueries++; }, varsValues);
+  useMemo(() => { client.queriesToFetch.push([graphql, variables]); client.waitForQueries++; }, varsValues);
   useEffect(() => { client.waitForQueries--; }, varsValues);
 
   //useMemo(() => query.handleUpdate(variables), varsToValues(variables));
