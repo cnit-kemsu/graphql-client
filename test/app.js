@@ -1,29 +1,19 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { GraphqlClient } from '../src/classes/GraphqlClient';
-import { GraphqlProvider } from '../src/comps/GraphqlProvider';
+import { refetch } from '../src/classes/refetch';
 import { useQuery } from '../src/hooks/useQuery';
 import { useMutation } from '../src/hooks/useMutation';
 
-const client = new GraphqlClient('/graphql');
+GraphqlClient.url = '/graphql';
 
-const USERS_QUERY = ({ limit = 'Int!' }) => `
+const USERS_QUERY = ({ limit = 'Int' }) => `
   users(limit: ${limit}) {
     id
     username
     email
   }
 `;
-
-// const USERS_QUERY = [{
-//   limit: 'Int!'
-// }, ({ limit }) => `
-//   users(limit: ${limit}) {
-//     id
-//     username
-//     email
-//   }
-// `];
 
 const USERS_COUNT_QUERY = () => `
   usersCount
@@ -53,11 +43,11 @@ function Users() {
 
   console.log('render Users');
   const [limit, setLimit] = useState(5);
-  const [data, loading, refetch, error] = useQuery(USERS_QUERY, { limit }, {
+  const [data, loading, errors] = useQuery(USERS_QUERY, { limit }, {
     onComplete: () => console.log('fetch success'),
     onError: console.error
   });
-  const [data1, loading1, refetch1, error1] = useQuery(USERS_COUNT_QUERY, {}, {
+  const [data1, loading1, errors1] = useQuery(USERS_COUNT_QUERY, {}, {
     onComplete: () => console.log('fetch success'),
     onError: console.error
   });
@@ -73,14 +63,16 @@ function Users() {
 
   return (<>
     <div>
-      <button onClick={() => refetch()}>refetch</button>
+      <button onClick={() => refetch(USERS_QUERY)}>refetch users</button>
+      <button onClick={() => refetch(USERS_COUNT_QUERY)}>refetch count</button>
+      <button onClick={() => refetch(USERS_QUERY, USERS_COUNT_QUERY)}>refetch both</button>
     </div>
     Users count: {loading1 ? 'loading...' : (
-      error1 ? JSON.stringify(error1) :
+      errors1 && !data1.usersCount ? JSON.stringify(errors1) :
       data1.usersCount
     )}
     {loading ? 'loading...' : (
-      error ? JSON.stringify(error) :
+      errors && !data.users ? JSON.stringify(errors) :
       data.users?.map(
         ({ id, username, email }) => <div key={id}>
           <div>id: {id}</div>
@@ -123,9 +115,7 @@ function App() {
 
   console.log('render app');
   return (
-    <GraphqlProvider client={client}>
-      <Users />
-    </GraphqlProvider>
+    <Users />
   );
 }
 

@@ -1,34 +1,34 @@
-import { useContext, useMemo, useEffect } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useForceUpdate } from '@kemsu/force-update';
-import { GraphqlContext } from '../comps/GraphqlProvider';
-import { Query } from '../classes/Query';
+import { QueryUpdater } from '../classes/QueryUpdater';
 
-function varsToValues(variables) {
-  return Object.keys(variables).map(
-    key => key + ' = ' + JSON.stringify(variables[key])
-  );
+function varsToEntries(variables) {
+  const keys = Object.keys(variables);
+  const entries = [];
+  for (const name of keys) {
+    entries.push(name);
+    entries.push(variables[name]);
+  }
+  return entries;
 }
 
-export function useQuery(graphql, variables = {}, { onError, onComplete, skip } = {}) {
+export function useQuery(query, variables = {}, { onError, onComplete, skip } = {}) {
 
-  const client = useContext(GraphqlContext);
   const forceUpdate = useForceUpdate();
-  const query = useMemo(() => new Query(client, forceUpdate, graphql, onError, onComplete, skip), []);
+  const updater = useMemo(() => new QueryUpdater(forceUpdate, query, onError, onComplete, skip), []);
 
-  useEffect(query.handleSubscriptions, []);
+  useEffect(updater.handleSubscriptions, []);
 
-  const varsValues = varsToValues(variables);
-  useMemo(() => { client.queriesToFetch.push([graphql, variables]); client.waitForQueries++; }, varsValues);
-  useEffect(() => { client.waitForQueries--; }, varsValues);
+  updater.variables = variables;
+  const varEntries = varsToEntries(variables);
+  useMemo(updater.addToSuspended, varEntries);
+  useEffect(updater.removeFromSuspended, varEntries);
 
-  //useMemo(() => query.handleUpdate(variables), varsToValues(variables));
-
-  //useEffect(query.handleSubscriptions, []);
+  updater.test();
 
   return [
-    query.data,
-    query.loading,
-    query.refetch,
-    query.error
+    updater.data,
+    updater.loading,
+    updater.errors
   ];
 }

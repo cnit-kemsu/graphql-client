@@ -1,48 +1,24 @@
-import { collateQuery } from './collateQuery';
+import { fetchQueries } from './fetchQueries';
 
-class GraphqlError extends Error {
-  constructor(errors) {
-    super(errors?.[0]?.message);
-    this.name = 'GraphqlError';
-    this.errors = errors;
-  }
-}
-
+let suspended = 0;
 export class GraphqlClient {
 
-  headers = {};
-  _waitForQueries = 0;
-  queriesToFetch = [];
-  queries = [];
+  static url;
+  static headers = {
+    'X-Requested-With': 'XMLHttpRequest'
+  };
+  static queries = [];
+  static updaters = [];
 
-  constructor(url) {
-    this.url = url;
+  static get suspended() {
+    return suspended;
+  }
+  static set suspended(value) {
+    suspended = value;
+    if (value === 0) fetchQueries();
   }
 
-  get waitForQueries() {
-    return this._waitForQueries;
-  }
-  set waitForQueries(value) {
-    this._waitForQueries = value;
-    if (this._waitForQueries === 0) this.fetchQueries();
-  }
-
-  async fetchQueries() {
-    const [resultQuery, values] = collateQuery(this.queriesToFetch);
-
-    await this.fetch({
-      query: resultQuery,
-      variables: values
-    });
-    for (const [graphql] of this.queriesToFetch) {
-      for (const query of this.queries) {
-        if (query.graphql === graphql) query.forceUpdate();
-      }
-    }
-    this.queriesToFetch = [];
-  }
-
-  async fetch(body) {
+  static async fetch(body) {
 
     const formData  = new FormData();
     formData.append('query', body.query);
@@ -50,22 +26,21 @@ export class GraphqlClient {
 
     try {
 
-      const responce = await fetch(this.url, {
+      const responce = await fetch(GraphqlClient.url, {
         method: 'POST',
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest',
-          ...this.headers
-        },
+        headers: GraphqlClient.headers,
         body: formData
       });
   
       const result = await responce.json();
-      if (responce.status !== 200 || result.errors !== undefined) throw new GraphqlError(result.errors);
-      return result.data;
+      if (responce.status !== 200) GraphqlClient.onGraphqlErrors?.(result.errors);
+      else if (result.errors !== undefined) GraphqlClient.onServerErrors?.(result.errors);
+      else GraphqlClient.onComplete?.(result.data);
+      return result;
 
     } catch (error) {
-      if (error.name === 'GraphqlError') throw error;
-      else throw new GraphqlError([error]);
+      GraphqlClient.onError?.(error);
+      return { errors: [error.message] };
     }
     
   }
