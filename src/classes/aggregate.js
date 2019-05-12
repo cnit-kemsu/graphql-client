@@ -14,14 +14,14 @@ export function aggregate(queries) {
       types[alias] = args[name];
       if (variables[name] !== undefined) values[alias] = variables[name];
     }
-    resultQuery += query(aliases) + '\n';
+    resultQuery += '\n  ' + query(aliases);
   }
 
   return [
     Object.entries(types).map(
       ([name, type]) => '$' + name + ': ' + type
     ) |> #.join('') |> # && '(' + # + ')'
-    |> `query operation${#} {${resultQuery}}`.replace(/\n\s*\n/g, '\n'),
+    |> `query operation${#} {${resultQuery}\n}`.replace(/\n\s*\n/g, '\n'),
     values
   ];
 }

@@ -1,35 +1,40 @@
-import { fetchQueries } from './fetchQueries';
+import { fetchElements } from './fetchElements';
 
-let suspended = 0;
+async function fetchClientQueries() {
+  await fetchElements(GraphqlClient.elements);
+  GraphqlClient.elements = [];
+}
+
+let suspendedQueue = 0;
 export class GraphqlClient {
 
   static url;
   static headers = {
     'X-Requested-With': 'XMLHttpRequest'
   };
-  static queries = [];
+  static elements = [];
   static updaters = [];
 
-  static get suspended() {
-    return suspended;
+  static get suspendedQueue() {
+    return suspendedQueue;
   }
-  static set suspended(value) {
-    suspended = value;
-    if (value === 0) fetchQueries();
+  static set suspendedQueue(value) {
+    suspendedQueue = value;
+    if (value === 0) fetchClientQueries();
   }
 
-  static async fetch(body) {
+  static async fetch({ query, variables }) {
 
-    const formData  = new FormData();
-    formData.append('query', body.query);
-    formData.append('variables', JSON.stringify(body.variables));
+    const body  = new FormData();
+    body.append('query', query);
+    body.append('variables', JSON.stringify(variables));
 
     try {
 
       const responce = await fetch(GraphqlClient.url, {
         method: 'POST',
         headers: GraphqlClient.headers,
-        body: formData
+        body
       });
   
       const result = await responce.json();

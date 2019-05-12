@@ -4,6 +4,7 @@ import { GraphqlClient } from '../src/classes/GraphqlClient';
 import { refetch } from '../src/classes/refetch';
 import { useQuery } from '../src/hooks/useQuery';
 import { useMutation } from '../src/hooks/useMutation';
+import { Mutation } from '../src/classes/Mutation';
 
 GraphqlClient.url = '/graphql';
 
@@ -15,11 +16,9 @@ const USERS_QUERY = ({ limit = 'Int' }) => `
   }
 `;
 
-const USERS_COUNT_QUERY = () => `
-  usersCount
-`;
+const USERS_COUNT_QUERY = () => `usersCount`;
 
-const createUserMutation = `
+const CREATE_USER_MUTATION = `
   mutation createUser($username: String!, $email: String) {
     createUser(username: $username, email: $email) {
       id
@@ -29,7 +28,7 @@ const createUserMutation = `
   }
 `;
 
-const deleteUserMutation = `
+const DELETE_USER_MUTATION = `
   mutation deleteUser($id: Int!) {
     deleteUser(id: $id) {
       id
@@ -38,6 +37,11 @@ const deleteUserMutation = `
     }
   }
 `;
+
+const deleteUser = new Mutation(DELETE_USER_MUTATION, {
+  onComplete: () => { console.log('mutate success'); refetch(USERS_QUERY, USERS_COUNT_QUERY); },
+  onError: console.error
+}).commit;
 
 function Users() {
 
@@ -52,20 +56,16 @@ function Users() {
     onError: console.error
   });
 
-  const createUser = useMutation(createUserMutation, { email: 'standard@email.com' }, {
-    onComplete: () => { console.log('mutate success'); refetch(); },
+  const createUser = useMutation(CREATE_USER_MUTATION, {
+    onComplete: () => { console.log('mutate success'); refetch(USERS_QUERY, USERS_COUNT_QUERY); },
     onError: console.error
-  });
-  const deleteUser = useMutation(deleteUserMutation, {}, {
-    onComplete: () => { console.log('mutate success'); refetch(); },
-    onError: console.error
-  });
+  }, { email: 'standard@email.com' });
 
   return (<>
     <div>
       <button onClick={() => refetch(USERS_QUERY)}>refetch users</button>
       <button onClick={() => refetch(USERS_COUNT_QUERY)}>refetch count</button>
-      <button onClick={() => refetch(USERS_QUERY, USERS_COUNT_QUERY)}>refetch both</button>
+      <button onClick={() => refetch([USERS_QUERY, { limit: 1 }], USERS_COUNT_QUERY)}>refetch both</button>
     </div>
     Users count: {loading1 ? 'loading...' : (
       errors1 && !data1.usersCount ? JSON.stringify(errors1) :

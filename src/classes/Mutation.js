@@ -1,39 +1,34 @@
+import { GraphqlClient } from './GraphqlClient';
 import { UIBlocker } from '../classes/UIBlocker';
 
 export class Mutation {
 
-  constructor(client, mutation, onError, onComplete, blockUI) {
-    this.client = client;
-    this.mutation = mutation;
+  constructor(query, { onError, onComplete, blockUI = true }) {
+    this.query = query;
     this.onError = onError;
     this.onComplete = onComplete;
     this.blockUI = blockUI;
 
-    this.mutate = this.mutate.bind(this);
+    this.commit = this.commit.bind(this);
   }
 
-  async mutate(variables) {
-    try {
+  async commit(variables) {
+    if (this.blockUI) UIBlocker.disable();
 
-      if (this.blockUI) UIBlocker.disable();
-      const data = await this.client.fetch({
-        query: this.mutation,
-        variables: {
-          ...this.static,
-          ...variables
-        }
-      });
-      if (this.blockUI) UIBlocker.enable();
-      this.onComplete?.(data, {
+    const { data, errors = null } = await GraphqlClient.fetch({
+      query: this.query,
+      variables: {
         ...this.static,
         ...variables
-      });
+      }
+    });
+    
+    if (this.blockUI) UIBlocker.enable();
 
-    } catch (error) {
-      if (this.blockUI) UIBlocker.enable();
-      this.onError?.(error);
-      return error;
-    }
+    if (errors === null) this.onComplete?.(data, {
+      ...this.static,
+      ...variables
+    }); else this.onError?.(errors);
   }
 
 }

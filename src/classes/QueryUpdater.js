@@ -21,28 +21,26 @@ export class QueryUpdater {
 
   addToSuspended() {
     if (this.skip) return;
-    GraphqlClient.queries.push([this.query, this.variables]);
+    GraphqlClient.elements.push([this.query, this.variables]);
     this.loading = true;
-    GraphqlClient.suspended++;
+    GraphqlClient.suspendedQueue++;
   }
   removeFromSuspended() {
     if (this.skip) return;
-    GraphqlClient.suspended--;
+    GraphqlClient.suspendedQueue--;
   }
 
-  setState({ data, loading, errors }) {
-    if (data !== undefined && this.data !== data) {
-      this.data = data;
-      this.requireUpdate = true;
-    }
-    if (loading !== undefined && this.loading !== loading) {
-      this.loading = loading;
-      this.requireUpdate = true;
-    }
-    if (errors !== undefined && this.errors !== errors) {
-      this.errors = errors;
-      this.requireUpdate = true;
-    }
+  makeLoading() {
+    this.loading = true;
+    this.requireUpdate = true;
+  }
+  makeComplete({ data, errors }) {
+    this.loading = false;
+    this.data = data;
+    this.errors = errors;
+    this.requireUpdate = true;
+    if (errors === null) this.onComplete?.(data);
+    else this.onError?.(errors);
   }
 
   test() {
@@ -50,7 +48,6 @@ export class QueryUpdater {
     this.requireUpdate = false;
     return true;
   }
-
   update() {
     if(this.test()) this.forceUpdate();
   }

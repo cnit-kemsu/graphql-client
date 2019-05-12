@@ -49,7 +49,7 @@ const createUser = {
     email: { type: GraphQLString }
   },
   async resolve(obj, { username, email }, { db }) {
-    await wait(2000);
+    await wait(600);
     const { lastID: id } = await db.run(`INSERT INTO users (username, email) VALUES(?,?)`, username, email);
     return {
       id,
@@ -79,7 +79,7 @@ const deleteUser = {
     id: { type: new GraphQLNonNull(GraphQLInt) }
   },
   async resolve(obj, { id }, { db }) {
-    await wait(1000);
+    await wait(300);
     const result = await db.all(`SELECT id, username, email FROM users WHERE id = $id`, id);
     await db.run(`DELETE FROM users WHERE id = ?`, id);
     return result[0];

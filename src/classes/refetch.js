@@ -1,11 +1,20 @@
 import { GraphqlClient } from './GraphqlClient';
-import { fetchQueries } from './fetchQueries';
+import { fetchElements } from './fetchElements';
 
-export function refetch(...queries) {
-  for (const query of queries) {
+export function refetch(...elements) {
+  const _elements = [];
+  const updaters = [];
+  for (const element of elements) {
+    const [query, variables] = Array.isArray(element) ? element : [element];
     for (const updater of GraphqlClient.updaters) {
-      if (updater.query === query) GraphqlClient.queries.push([query, updater.variables]);
+      if (updater.query === query) {
+        _elements.push([query, variables || updater.variables]);
+        if (!updaters.includes(updater)) updaters.push(updater);
+      }
     }
   }
-  fetchQueries();
+  for (const updater of updaters) updater.makeLoading();
+  for (const updater of updaters) updater.update();
+  
+  fetchElements(_elements);
 }

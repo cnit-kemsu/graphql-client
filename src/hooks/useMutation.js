@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
 import { Mutation } from '../classes/Mutation';
 
-export function useMutation(graphql, { onError, onComplete, blockUI = true } = {}, variables) {
+export function useMutation(query, options, variables) {
 
-  const mutation = useMemo(() => new Mutation(graphql, onError, onComplete, blockUI), []);
+  const mutation = useMemo(() => new Mutation(query, options), []);
   mutation.static = variables;
 
-  return mutation.mutate;
+  return mutation.commit;
 }
