@@ -1,7 +1,7 @@
 import { GraphqlClient } from './GraphqlClient';
 import { fetchElements } from './fetchElements';
 
-export function refetch(...elements) {
+export async function refetch(...elements) {
   const _elements = [];
   const updaters = [];
   for (const element of elements) {
@@ -16,5 +16,5 @@ export function refetch(...elements) {
   for (const updater of updaters) updater.makeLoading();
   for (const updater of updaters) updater.update();
   
-  fetchElements(_elements);
+  await fetchElements(_elements);
 }
