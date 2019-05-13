@@ -1,8 +1,9 @@
 import { fetchElements } from './fetchElements';
 
 async function fetchClientQueries() {
-  await fetchElements(GraphqlClient.elements);
+  const elements = GraphqlClient.elements;
   GraphqlClient.elements = [];
+  await fetchElements(elements);
 }
 
 let suspendedQueue = 0;
