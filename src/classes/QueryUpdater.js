@@ -55,7 +55,7 @@ export class QueryUpdater {
   handleSubscriptions() {
     GraphqlClient.updaters.push(this);
     return () => {
-      GraphqlClient.updaters.splice(this.client.updaters.indexOf(this), 1);
+      GraphqlClient.updaters.splice(GraphqlClient.updaters.indexOf(this), 1);
     };
   }
 
