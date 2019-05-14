@@ -29,6 +29,8 @@ export class Mutation {
       ...this.static,
       ...variables
     }); else this.onError?.(errors);
+
+    if (errors !== null) return errors;
   }
 
 }
