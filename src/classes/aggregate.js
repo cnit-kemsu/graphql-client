@@ -1,5 +1,9 @@
 import { findArgs } from './findArgs';
 
+function convertValue(value, type) {
+  if (type.includes('Int') || type.includes('Float')) return new Number(value);
+}
+
 export function aggregate(queries) {
   const types = {};
   const values = {};
@@ -12,7 +16,7 @@ export function aggregate(queries) {
       const alias = types[name] === undefined ? name : name + index + 1;
       aliases[name] = '$' + alias;
       types[alias] = args[name];
-      if (variables[name] !== undefined) values[alias] = variables[name];
+      if (variables[name] !== undefined) values[alias] = convertValue(variables[name], args[name]);
     }
     resultQuery += '\n  ' + query(aliases);
   }
