@@ -1,10 +1,16 @@
 import { GraphqlClient } from './GraphqlClient';
 import { UIBlocker } from '../classes/UIBlocker';
+import { aggregate } from './aggregate';
+
+function toElementArray(query) {
+  return [query, {}];
+}
 
 export class Mutation {
 
   constructor(query, { onError, onComplete, blockUI = true }) {
-    this.query = query;
+    this.query = Array.isArray(query) ? query.map(toElementArray) : [[query, {}]]
+    |> 'mutation ' + aggregate(#)[0];
     this.onError = onError;
     this.onComplete = onComplete;
     this.blockUI = blockUI;
@@ -15,6 +21,7 @@ export class Mutation {
   async commit(variables) {
     if (this.blockUI) UIBlocker.disable();
 
+    console.log(this.query);
     const { data, errors = null } = await GraphqlClient.fetch({
       query: this.query,
       variables: {

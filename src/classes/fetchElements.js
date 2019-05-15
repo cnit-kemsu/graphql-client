@@ -7,7 +7,7 @@ export async function fetchElements(elements) {
   // console.log(values); //DEBUG
 
   const { data = {}, errors = null } = await GraphqlClient.fetch({
-    query: resultQuery,
+    query: 'query ' + resultQuery,
     variables
   });
 

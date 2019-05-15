@@ -18,23 +18,19 @@ const USERS_QUERY = ({ limit = 'Int' }) => `
 
 const USERS_COUNT_QUERY = () => `usersCount`;
 
-const CREATE_USER_MUTATION = `
-  mutation createUser($username: String!, $email: String) {
-    createUser(username: $username, email: $email) {
-      id
-      username
-      email
-    }
+const CREATE_USER_MUTATION = ({ username = 'String!', email = 'String!' }) => `
+  createUser(username: ${username}, email: ${email}) {
+    id
+    username
+    email
   }
 `;
 
-const DELETE_USER_MUTATION = `
-  mutation deleteUser($id: Int!) {
-    deleteUser(id: $id) {
-      id
-      username
-      email
-    }
+const DELETE_USER_MUTATION = ({ id = 'Int!' }) => `
+  deleteUser(id: ${id}) {
+    id
+    username
+    email
   }
 `;
 
