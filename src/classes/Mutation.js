@@ -21,7 +21,6 @@ export class Mutation {
   async commit(variables) {
     if (this.blockUI) UIBlocker.disable();
 
-    console.log(this.query);
     const { data, errors = null } = await GraphqlClient.fetch({
       query: this.query,
       variables: {
