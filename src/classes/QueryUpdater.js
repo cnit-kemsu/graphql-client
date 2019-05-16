@@ -17,6 +17,9 @@ export class QueryUpdater {
     this.addToSuspended = this.addToSuspended.bind(this);
     this.removeFromSuspended = this.removeFromSuspended.bind(this);
     this.handleSubscriptions = this.handleSubscriptions.bind(this);
+
+    this.deleteDataKey = this.deleteDataKey.bind(this);
+    this.createDataKey = this.createDataKey.bind(this);
   }
 
   addToSuspended() {
@@ -34,9 +37,19 @@ export class QueryUpdater {
     this.loading = true;
     this.requireUpdate = true;
   }
+  deleteDataKey(key) {
+    delete this.data[key]
+  }
+  createDataKey([key, value]) {
+    this.data[key] = value;
+  }
   makeComplete({ data, errors }) {
     this.loading = false;
-    this.data = data;
+
+    Object.keys(this.data).forEach(this.deleteDataKey);
+    Object.entries(data).forEach(this.createDataKey);
+    //this.data = data;
+    
     this.errors = errors;
     this.requireUpdate = true;
     if (errors === null) this.onComplete?.(data);
