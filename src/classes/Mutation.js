@@ -30,13 +30,11 @@ export class Mutation {
   async commit(variables) {
     if (this.blockUI) UIBlocker.disable();
 
-    const _variables = {};
-    for (const key of Object.keys(variables)) {
+    const _variables = { ...variables };
+    if (variables != null) for (const key of Object.keys(variables)) {
       if (variables[key] != null && variables[key] !== '') 
         if (this.argTypes[key].includes('Int') || this.argTypes[key].includes('Float')) {
           _variables[key] = Number(variables[key]);
-        } else {
-          _variables[key] = variables[key];
         }
     }
 
