@@ -1,6 +1,7 @@
 import { GraphqlClient } from './GraphqlClient';
 import { UIBlocker } from '../classes/UIBlocker';
 import { aggregate } from './aggregate';
+import { findArgs } from './findArgs';
 
 function toElementArray(query) {
   return [query, {}];
@@ -15,6 +16,8 @@ export class Mutation {
     this.onComplete = onComplete;
     this.blockUI = blockUI;
 
+    this.argTypes = Array.isArray(query) ? query.map(query) : findArgs(query);
+
     this.commit = this.commit.bind(this);
   }
 
@@ -27,11 +30,21 @@ export class Mutation {
   async commit(variables) {
     if (this.blockUI) UIBlocker.disable();
 
+    const _variables = {};
+    for (const key of Object.keys(variables)) {
+      if (variables[key] != null && variables[key] !== '') 
+        if (this.argTypes[key].includes('Int') || this.argTypes[key].includes('Float')) {
+          _variables[key] = Number(variables[key]);
+        } else {
+          _variables[key] = variables[key];
+        }
+    }
+
     const { data, errors = null } = await GraphqlClient.fetch({
       query: this.query,
       variables: {
         ...this.static,
-        ...variables
+        ..._variables
       }
     });
     
