@@ -6,6 +6,16 @@ async function fetchClientQueries() {
   await fetchElements(elements);
 }
 
+function appendBlobs(body, target, namePath = []) {
+  if (target instanceof Array || (target instanceof Object && target.constructor === Object)) {
+    for (const key of Object.keys(target)) {
+      appendBlobs(body, target[key], [ ...namePath , key ]);
+    }
+  } else {
+    body.append(namePath.join('.'), target);
+  }
+}
+
 let suspendedQueue = 0;
 export class GraphqlClient {
 
@@ -24,11 +34,12 @@ export class GraphqlClient {
     if (value === 0) fetchClientQueries();
   }
 
-  static async fetch({ query, variables }) {
+  static async fetch({ query, variables, blobs }) {
 
     const body  = new FormData();
     body.append('query', query);
     body.append('variables', JSON.stringify(variables));
+    appendBlobs(body, blobs);
 
     try {
 

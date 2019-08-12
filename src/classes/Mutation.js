@@ -27,7 +27,7 @@ export class Mutation {
     this.blockUI = blockUI;
   }
 
-  async commit(variables) {
+  async commit(variables, blobs) {
     if (this.blockUI) UIBlocker.disable();
 
     const _variables = { ...variables };
@@ -43,7 +43,8 @@ export class Mutation {
       variables: {
         ...this.static,
         ..._variables
-      }
+      },
+      blobs
     });
     
     if (this.blockUI) UIBlocker.enable();
