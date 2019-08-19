@@ -1,23 +1,16 @@
-import fs from 'fs';
 import path from 'path';
-import webpack from 'webpack';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import { DuplicatesPlugin } from 'inspectpack/plugin';
 
 export default {
-  devtool: 'inline-source-map',
   mode: 'development',
-  cache: true,
-
+  devtool: 'inline-source-map',
   target: 'web',
 
-  entry: [
-    'webpack-hot-middleware/client?path=http://localhost:3000/__webpack_hmr&reload=true',
-    './test/app.js'
-  ],
+  entry: './example/public/index.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: '[name].js',
+    filename: 'main.js',
     publicPath: '/'
   },
 
@@ -28,26 +21,23 @@ export default {
         include: [
           'src',
           'node_modules/@kemsu',
-          'test'
-        ].map(_ => path.resolve(__dirname, _)),
+          'example/public',
+        ].map(incl => path.resolve(__dirname, incl)),
         loader: 'babel-loader',
-        options: fs.readFileSync('.babelrc') |> JSON.parse
       }
     ]
   },
 
   plugins: [
-    new webpack.HotModuleReplacementPlugin(),
     new HtmlWebpackPlugin({
-      title: 'graphql-client',
-      template: './test/index.html'
+      template: './example/public/index.html'
     }),
-    new DuplicatesPlugin({}),
+    new DuplicatesPlugin({})
   ],
 
   optimization: {
     namedChunks: true,
-    namedModules: true,
+    namedModules: false,
     splitChunks: {
       cacheGroups: {
         vendor: {
@@ -56,6 +46,22 @@ export default {
           chunks: 'all'
         }
       }
+    }
+  },
+
+  resolve: {
+    alias: {
+      '@components': path.resolve(__dirname, 'src/components/'),
+      '@hooks': path.resolve(__dirname, 'src/hooks/'),
+      '@lib': path.resolve(__dirname, 'src/lib/')
+    }
+  },
+
+  devServer: {
+    port: 3000,
+    historyApiFallback: true,
+    proxy: {
+      '/api': 'http://localhost:8080/graphql'
     }
   }
 };

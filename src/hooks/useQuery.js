@@ -1,18 +1,17 @@
 import { useMemo, useEffect } from 'react';
 import { useForceUpdate } from '@kemsu/force-update';
-import { QueryUpdater } from '../classes/QueryUpdater';
+import { QueryUpdater } from '../lib/QueryUpdater';
 
-function varsToEntries(variables) {
-  const keys = Object.keys(variables);
-  const entries = [];
-  for (const name of keys) {
-    entries.push(name);
-    entries.push(variables[name]);
+function variablesToWatchArray(variables) {
+  const watchArray = [];
+  for (const name in variables) {
+    watchArray.push(name);
+    watchArray.push(variables[name]);
   }
-  return entries;
+  return watchArray;
 }
 
-export function useQuery(query, variables = {}, { onError, onComplete, skip } = {}) {
+export function useQuery(query, variables = {}, { onError, onComplete, skip = false }) {
 
   const forceUpdate = useForceUpdate();
   const updater = useMemo(() => new QueryUpdater(forceUpdate, query, onError, onComplete, skip), []);
@@ -20,9 +19,9 @@ export function useQuery(query, variables = {}, { onError, onComplete, skip } = 
   useEffect(updater.handleSubscriptions, []);
 
   updater.variables = variables;
-  const varEntries = varsToEntries(variables);
-  useMemo(updater.addToSuspended, varEntries);
-  useEffect(updater.removeFromSuspended, varEntries);
+  const watchArray = variablesToWatchArray(variables);
+  useMemo(updater.addToSuspended, watchArray);
+  useEffect(updater.removeFromSuspended, watchArray);
 
   updater.test();
 

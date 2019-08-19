@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-import { GraphqlClient } from '../src/classes/GraphqlClient';
-import { refetch } from '../src/classes/refetch';
-import { useQuery } from '../src/hooks/useQuery';
-import { useMutation } from '../src/hooks/useMutation';
-import { Mutation } from '../src/classes/Mutation';
+import { GraphqlClient } from '@lib/GraphqlClient';
+import { Mutation } from '@lib/Mutation';
+import { refetch } from '@lib/refetch';
+import { useQuery } from '@hooks/useQuery';
+import { useMutation } from '@hooks/useMutation';
 
-GraphqlClient.url = '/graphql';
+GraphqlClient.url = '/api';
 
 const USERS_QUERY = ({ limit = 'Int' }) => `
   users(limit: ${limit}) {
@@ -35,7 +35,7 @@ const DELETE_USER_MUTATION = ({ id = 'Int!' }) => `
 `;
 
 const deleteUser = new Mutation(DELETE_USER_MUTATION, {
-  onComplete: () => { console.log('mutate success'); refetch(USERS_QUERY, USERS_COUNT_QUERY); },
+  onComplete: () => { console.log('delete user success'); refetch(USERS_QUERY, USERS_COUNT_QUERY); },
   onError: console.error
 }).commit;
 
@@ -43,12 +43,12 @@ function Users() {
 
   console.log('render Users');
   const [limit, setLimit] = useState(5);
-  const [data, loading, errors] = useQuery(USERS_QUERY, { limit }, {
-    onComplete: () => console.log('fetch success'),
+  const [{ users }, loading1, errors1] = useQuery(USERS_QUERY, { limit }, {
+    onComplete: () => console.log('fetch users success'),
     onError: console.error
   });
-  const [data1, loading1, errors1] = useQuery(USERS_COUNT_QUERY, {}, {
-    onComplete: () => console.log('fetch success'),
+  const [{ usersCount }, loading2, errors2] = useQuery(USERS_COUNT_QUERY, {}, {
+    onComplete: () => console.log('fetch users count success'),
     onError: console.error
   });
 
@@ -57,19 +57,19 @@ function Users() {
     onError: console.error
   }, { email: 'standard@email.com' });
 
-  return (<>
+  return <>
     <div>
       <button onClick={() => refetch(USERS_QUERY)}>refetch users</button>
-      <button onClick={() => refetch(USERS_COUNT_QUERY)}>refetch count</button>
-      <button onClick={() => refetch([USERS_QUERY, { limit: 1 }], USERS_COUNT_QUERY)}>refetch both</button>
+      <button onClick={() => refetch(USERS_COUNT_QUERY)}>refetch users count</button>
+      <button onClick={() => refetch([USERS_QUERY, { limit: 1 }], USERS_COUNT_QUERY)}>refetch users and users count</button>
     </div>
-    Users count: {loading1 ? 'loading...' : (
-      errors1 && !data1.usersCount ? JSON.stringify(errors1) :
-      data1.usersCount
+    Users count: {loading2 ? 'loading...' : (
+      errors2 && !usersCount ? JSON.stringify(errors2) :
+      usersCount
     )}
-    {loading ? 'loading...' : (
-      errors && !data.users ? JSON.stringify(errors) :
-      data.users?.map(
+    {loading1 ? 'loading...' : (
+      errors1 && !users ? JSON.stringify(errors1) :
+      users?.map(
         ({ id, username, email }) => <div key={id}>
           <div>id: {id}</div>
           <div>username: {username}</div>
@@ -79,16 +79,16 @@ function Users() {
       )
     )}
     <div>
-      <button onClick={() => setLimit(5)}>set limit 5</button>
-      <button onClick={() => setLimit(10)}>set limit 10</button>
-      <button onClick={() => setLimit('str')}>set limit 'str'</button>
+      <button onClick={() => setLimit(5)}>set limit to 5</button>
+      <button onClick={() => setLimit(10)}>set limit to 10</button>
+      <button onClick={() => setLimit('str')}>set limit to 'str'</button>
     </div>
     <div>
       <div>Add user</div>
       <form name="form1" onSubmit={event => {
         event.preventDefault();
         const values = {};
-        for(const input of document.forms.form1.elements) {
+        for (const input of document.forms.form1.elements) {
           if (input.type !== 'submit' && input.value) values[input.name] = input.value;
         }
         createUser(values);
@@ -104,7 +104,7 @@ function Users() {
         </div>
       </form>
     </div>
-  </>);
+  </>;
 }
 
 function App() {

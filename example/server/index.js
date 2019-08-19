@@ -3,37 +3,16 @@ import graphqlHTTP from 'express-graphql';
 import sqlite from 'sqlite';
 import schema from './schema';
 
-import webpack from 'webpack';
-import webpackDevMiddleware from 'webpack-dev-middleware';
-import config from '../webpack.config';
-import webpackHotMiddleware from 'webpack-hot-middleware';
-
-import https from 'https';
-import fs from 'fs';
-import path from 'path';
-
 import multer from 'multer';
 const upload = multer();
 
 const app = express();
 
-const compiler = webpack(config);
-webpackDevMiddleware(compiler, {
-  publicPath: config.output.publicPath,
-  // watchOptions: {
-  //   aggregateTimeout: 300,
-  //   poll: true
-  // }
-}) |> app.use;
-webpackHotMiddleware(compiler, {
-  //heartbeat: 1000
-}) |> app.use;
-
 app.use(
   '/graphql',
   upload.none(),
   graphqlHTTP(async () => {
-    const db = await sqlite.open('./test/localdb');
+    const db = await sqlite.open('./example/server/localdb');
     return {
       schema,
       context: {
@@ -47,7 +26,7 @@ app.use(
   })
 );
 
-app.listen(3000);
+app.listen(8080);
 
 // const server = https.createServer({
 //   key: fs.readFileSync(
@@ -58,4 +37,4 @@ app.listen(3000);
 //   )
 // }, app);
 
-// server.listen(3000);
+// server.listen(8080);

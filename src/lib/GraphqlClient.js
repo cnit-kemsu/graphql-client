@@ -1,19 +1,18 @@
-import { fetchElements } from './fetchElements';
+import { fetchEntries } from './fetchEntries';
 
-async function fetchClientQueries() {
-  const elements = GraphqlClient.elements;
-  GraphqlClient.elements = [];
-  await fetchElements(elements);
+async function _fetchEntries() {
+  const entries = GraphqlClient.entries;
+  GraphqlClient.entries = [];
+  await fetchEntries(entries);
 }
 
-function appendBlobs(body, target, namePath = []) {
-  if (target instanceof Array || (target instanceof Object && target.constructor === Object)) {
-    for (const key of Object.keys(target)) {
-      appendBlobs(body, target[key], [ ...namePath , key ]);
-    }
-  } else {
-    body.append(namePath.join('.'), target);
+function splitBlobs(value, blobs = []) {
+  if (value instanceof Blob) {
+    blobs.push(value);
+    value = 'blob_index=' + blobs.length - 1;
   }
+  if (value instanceof Object) for (const key in value) splitBlobs(value[key], blobs);
+  return [value, blobs];
 }
 
 let suspendedQueue = 0;
@@ -23,7 +22,7 @@ export class GraphqlClient {
   static headers = {
     'X-Requested-With': 'XMLHttpRequest'
   };
-  static elements = [];
+  static entries = [];
   static updaters = [];
 
   static get suspendedQueue() {
@@ -31,15 +30,16 @@ export class GraphqlClient {
   }
   static set suspendedQueue(value) {
     suspendedQueue = value;
-    if (value === 0) fetchClientQueries();
+    if (value === 0) _fetchEntries();
   }
 
-  static async fetch({ query, variables, blobs }) {
+  static async fetch(query, variables) {
 
     const body  = new FormData();
     body.append('query', query);
-    body.append('variables', JSON.stringify(variables));
-    appendBlobs(body, blobs);
+    const [_variables, blobs] = splitBlobs(variables);
+    body.append('variables', JSON.stringify(_variables));
+    for (const key in blobs) body.append(key, blobs[key]);
 
     try {
 
