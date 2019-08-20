@@ -8,8 +8,13 @@ async function _fetchEntries() {
 
 function splitBlobs(value, blobs = []) {
   if (value instanceof Blob) {
-    blobs.push(value);
-    value = 'blob_index=' + blobs.length - 1;
+    const blobIndex = blobs.findIndex(blob => blob === value);
+    if (blobIndex === -1) {
+      blobs.push(value);
+      value = 'blob_index=' + blobs.length - 1;
+    } else {
+      value = 'blob_index=' + blobIndex;
+    }
   }
   if (value instanceof Object) for (const key in value) splitBlobs(value[key], blobs);
   return [value, blobs];
