@@ -11,7 +11,7 @@ function variablesToWatchArray(variables) {
   return watchArray;
 }
 
-export function useQuery(query, variables = {}, { onError, onComplete, skip = false }) {
+export function useQuery(query, variables = {}, { onError, onComplete, skip = false } = {}) {
 
   const forceUpdate = useForceUpdate();
   const updater = useMemo(() => new QueryUpdater(forceUpdate, query, onError, onComplete, skip), []);
