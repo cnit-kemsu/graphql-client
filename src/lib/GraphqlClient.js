@@ -6,33 +6,29 @@ async function _fetchEntries() {
   await fetchEntries(entries);
 }
 
-// function splitBlobs(value, blobs = []) {
-//   if (value instanceof Blob) {
-//     const blobIndex = blobs.findIndex(blob => blob === value);
-//     if (blobIndex === -1) {
-//       blobs.push(value);
-//       value = 'blob_index=' + blobs.length - 1;
-//     } else {
-//       value = 'blob_index=' + blobIndex;
-//     }
-//   }
-//   if (value instanceof Object) for (const key in value) splitBlobs(value[key], blobs);
-//   return [value, blobs];
-// }
+function splitBlobs(value, path = [], blobsMap = [], blobs = []) {
 
-function splitBlobs(value, blobs = []) {
-  if (value instanceof Object) for (const key in value) {
+  if (value instanceof Object) for (const key in value) if (value[key] instanceof Object) {
+
+    const _path = [ ...path, key ];
     if (value[key] instanceof Blob) {
+
       const blobIndex = blobs.findIndex(blob => blob === value[key]);
       if (blobIndex === -1) {
         blobs.push(value[key]);
-        value[key] = 'blob_index=' + (blobs.length - 1);
+        blobsMap.push([_path]);
+        //value[key] = 'blob_index=' + (blobs.length - 1);
+        delete value[key];
       } else {
-        value[key] = 'blob_index=' + blobIndex;
+        //value[key] = 'blob_index=' + blobIndex;
+        delete value[key];
+        blobsMap[blobIndex].push(_path);
       }
-    } else if (value[key] instanceof Object) splitBlobs(value[key], blobs)
-  };
-  return [value, blobs];
+      
+    } else splitBlobs(value[key], [ ...path, key ], blobsMap, blobs);
+
+  }
+  return [value, blobsMap, blobs];
 }
 
 let suspendedQueue = 0;
@@ -57,8 +53,9 @@ export class GraphqlClient {
 
     const body  = new FormData();
     body.append('query', query);
-    const [_variables, blobs] = splitBlobs(variables);
+    const [_variables, blobsMap, blobs] = splitBlobs(variables);
     body.append('variables', JSON.stringify(_variables));
+    body.append('blobsMap', JSON.stringify(blobsMap));
     for (const key in blobs) body.append(key, blobs[key]);
 
     try {
