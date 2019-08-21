@@ -16,6 +16,12 @@ export class Mutation {
     this.commit = this.commit.bind(this);
   }
 
+  refreshOptions({ onError, onComplete, blockUI }) {
+    this.onError = onError;
+    this.onComplete = onComplete;
+    this.blockUI = blockUI;
+  }
+
   async commit(variables) {
     if (this.blockUI) UIBlocker.disable();
 
