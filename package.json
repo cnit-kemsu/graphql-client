@@ -12,8 +12,8 @@
   "peerDependencies": {
     "@kemsu/force-update": "johncooper87/force-update",
     "@kemsu/publisher": "johncooper87/publisher",
-    "react": "^16.8.5",
-    "react-dom": "^16.8.5"
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
   },
   "devDependencies": {
     "@babel/core": "^7.10.4",
