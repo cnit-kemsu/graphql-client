@@ -1,6 +1,6 @@
 import { useMemo, useEffect } from 'react';
 import { useForceUpdate } from '@kemsu/force-update';
-import { QueryUpdater } from '../lib/QueryUpdater';
+import { QueryUpdater } from '../classes/QueryUpdater';
 
 function variablesToWatchArray(variables) {
   const watchArray = [];

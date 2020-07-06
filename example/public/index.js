@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import ReactDOM from 'react-dom';
-import { GraphqlClient } from '@lib/GraphqlClient';
-import { Mutation } from '@lib/Mutation';
-import { refetch } from '@lib/refetch';
+import { GraphqlClient } from '@classes/GraphqlClient';
+import { Mutation } from '@classes/Mutation';
+import { refetch } from '@classes/refetch';
 import { useQuery } from '@hooks/useQuery';
 import { useMutation } from '@hooks/useMutation';
 
