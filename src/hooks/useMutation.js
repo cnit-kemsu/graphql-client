@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Mutation } from '../classes/Mutation';
+import { Mutation } from '../Mutation';
 
 export function useMutation(query, options, variables) {
 

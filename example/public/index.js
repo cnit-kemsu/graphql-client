@@ -1,10 +1,10 @@
 import React, { useState, useCallback } from 'react';
 import ReactDOM from 'react-dom';
-import { GraphqlClient } from '@classes/GraphqlClient';
-import { Mutation } from '@classes/Mutation';
-import { refetch } from '@classes/refetch';
-import { useQuery } from '@hooks/useQuery';
-import { useMutation } from '@hooks/useMutation';
+import { GraphqlClient } from '@src/GraphqlClient';
+import { Mutation } from '@src/Mutation';
+import { refetch } from '@src/refetch';
+import { useQuery } from '@src/hooks/useQuery';
+import { useMutation } from '@src/hooks/useMutation';
 
 GraphqlClient.url = '/graphql';
 

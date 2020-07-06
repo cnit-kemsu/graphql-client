@@ -50,8 +50,7 @@ export default {
 
   resolve: {
     alias: {
-      '@hooks': path.resolve(__dirname, 'src/hooks/'),
-      '@classes': path.resolve(__dirname, 'src/classes/')
+      '@src': path.resolve(__dirname, 'src/')
     }
   },
 

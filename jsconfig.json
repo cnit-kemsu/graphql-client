@@ -2,8 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@hooks/*": ["./src/hooks/*"],
-      "@lib/*": ["./src/lib/*"]
+      "@src/*": ["./src/*"]
     }
   }
 }

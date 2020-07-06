@@ -1,5 +1,5 @@
-export { GraphqlClient } from './src/lib/GraphqlClient';
-export { Mutation } from './src/lib/Mutation';
+export { GraphqlClient } from './src/GraphqlClient';
+export { Mutation } from './src/Mutation';
 export { useQuery } from './src/hooks/useQuery';
 export { useMutation } from './src/hooks/useMutation';
-export { refetch } from './src/lib/refetch';
+export { refetch } from './src/refetch';
