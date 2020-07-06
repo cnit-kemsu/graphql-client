@@ -31,7 +31,7 @@
     "@kemsu/force-update": "johncooper87/force-update",
     "@kemsu/graphiql": "johncooper87/graphiql",
     "@kemsu/publisher": "johncooper87/publisher",
-    "babel-eslint": "^10.1.0",
+    "babel-eslint": "^11.0.0-beta.0",
     "babel-loader": "^8.1.0",
     "eslint": "^7.4.0",
     "eslint-plugin-babel": "^5.3.1",
