@@ -4,20 +4,6 @@ function findInCache(query) {
   return cache.find(current) |> # && #[1];
 }
 
-// function extractArgTypes(query) {
-//   const _temp = query.toString()
-//   |> #.slice(1, #.indexOf(')'));
-
-//   console.log(_temp);
-//   if (_temp === '') return {};
-
-//   const __temp = _temp.replace(/=/g, ':')
-//     .replace(/'/g, '"')
-//     .replace(/"?(\w+!?)"?/g, '"$1"')
-//   console.log(__temp);
-//   return JSON.parse(__temp);
-// }
-
 function extractArgTypes(query) {
   const _temp = query.toString()
   |> #.slice(#.indexOf('(') + 1, #.indexOf(')'));

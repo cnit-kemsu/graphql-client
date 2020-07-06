@@ -1,5 +1,5 @@
 import express from 'express';
-import graphqlHTTP from 'express-graphql';
+import { graphqlHTTP } from 'express-graphql';
 import sqlite from 'sqlite';
 import schema from './schema';
 
@@ -27,14 +27,3 @@ app.use(
 );
 
 app.listen(8080);
-
-// const server = https.createServer({
-//   key: fs.readFileSync(
-//     path.resolve(__dirname, 'key.txt')
-//   ),
-//   cert: fs.readFileSync(
-//     path.resolve(__dirname, 'crt.txt')
-//   )
-// }, app);
-
-// server.listen(8080);

@@ -28,7 +28,7 @@ const users = {
     limit: { type: GraphQLInt }
   },
   resolve: async (obj, { limit }, { db }) => {
-    //throw new Error('111');
+    //throw new Error('Error');
     const result = await db.all(`SELECT id, username, email FROM users LIMIT ?`, limit || -1);
     return result;
   }

@@ -1,6 +1,5 @@
 import path from 'path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
-import { DuplicatesPlugin } from 'inspectpack/plugin';
 
 export default {
   mode: 'development',
@@ -8,6 +7,7 @@ export default {
   target: 'web',
 
   entry: './example/public/index.js',
+
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'main.js',
@@ -31,8 +31,7 @@ export default {
   plugins: [
     new HtmlWebpackPlugin({
       template: './example/public/index.html'
-    }),
-    new DuplicatesPlugin({})
+    })
   ],
 
   optimization: {
@@ -51,7 +50,6 @@ export default {
 
   resolve: {
     alias: {
-      '@components': path.resolve(__dirname, 'src/components/'),
       '@hooks': path.resolve(__dirname, 'src/hooks/'),
       '@lib': path.resolve(__dirname, 'src/lib/')
     }
@@ -61,7 +59,7 @@ export default {
     port: 3000,
     historyApiFallback: true,
     proxy: {
-      '/api': 'http://localhost:8080/graphql'
+      '/graphql': 'http://localhost:8080/graphql'
     }
   }
 };
